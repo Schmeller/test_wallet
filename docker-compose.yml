@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/wallet_db
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=wallet_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  migrations:
+    build: .
+    command: alembic upgrade head
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/wallet_db
+    depends_on:
+      - db
+  tests:
+    build: .
+    command: pytest tests/ -v
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/test_wallet_db
+    depends_on:
+      - db    
+volumes:
+  postgres_data:
+
