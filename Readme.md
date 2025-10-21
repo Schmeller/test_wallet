@@ -17,7 +17,5 @@ POST /api/v1/wallets/{wallet_id}/operation - Операция (DEPOSIT/WITHDRAW)
 
 # Тестирование
 
-Локально: pytest tests/ -v
-
 Через докер: docker-compose run tests
 
