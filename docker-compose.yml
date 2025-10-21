@@ -24,12 +24,24 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    command: >
+      sh -c "
+        docker-entrypoint.sh postgres &
+        sleep 5
+        createdb -U user test_wallet_db
+        wait
+      "
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d wallet_db"]
       interval: 5s
       timeout: 5s
       retries: 5
-      
+  create_test_db:
+    build: .
+    command: >
+      sh -c "sleep 10 && psql -h db -U user -d wallet_db -c 'CREATE DATABASE test_wallet_db;'"
+    depends_on:
+      - db      
   migrations:
     build: .
     command: alembic upgrade head
